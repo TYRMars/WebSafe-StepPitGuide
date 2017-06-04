@@ -1,1 +1,8 @@
-jspm_packages
+*~
+.DS_Store
+
+.idea
+
+node_modules
+
+dist
