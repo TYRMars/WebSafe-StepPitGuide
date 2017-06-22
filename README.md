@@ -9,10 +9,10 @@
 #### 第二章 前端XSS
 * [02-01](https://github.com/TYRMars/WebsafeLearn#02-01) `XSS介绍`
 * [02-02](https://github.com/TYRMars/WebsafeLearn#02-02) `XSS攻击类型`
-* [02-02](https://github.com/TYRMars/WebsafeLearn#02-03) `HTML内容和属性转义`
-* [02-02](https://github.com/TYRMars/WebsafeLearn#02-04) `JS转义`
-* [02-02](https://github.com/TYRMars/WebsafeLearn#02-05) `富文本`
-* [02-02](https://github.com/TYRMars/WebsafeLearn#02-06) `CSP`
+* [02-03](https://github.com/TYRMars/WebsafeLearn#02-03) `HTML内容和属性转义`
+* [02-04](https://github.com/TYRMars/WebsafeLearn#02-04) `JS转义`
+* [02-05](https://github.com/TYRMars/WebsafeLearn#02-05) `富文本`
+* [02-06](https://github.com/TYRMars/WebsafeLearn#02-06) `CSP`
 * 更新中！
-* 
+*
 ---
