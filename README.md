@@ -3,6 +3,8 @@
 
 ---
 
+* [X](https://github.com/TYRMars/WebsafeLearn#01-01)`自己对Web安全的探索`
+
 # 目录
 #### 第一章 Web前后端漏洞分析与防御-前置知识
 * [01-01](https://github.com/TYRMars/WebsafeLearn#01-01) `Web安全简述`
@@ -186,3 +188,76 @@ var from = "Google";alert(1);""//此段代码是传递到页面上
 * 这样`from`属性被关闭，中间会注入了`alert`，就会出现弹框！！！
 
 #### 3. 富文本
+* 富文本得保留HTML
+* HTML有XSS攻击风险
+
+#### 浏览器自带的XSS攻击拦截机制
+* 设置Header X-XSS-Protection
+* 此机制只适用于参数出现在HTML内容或属性才会去拦截
+* 只适用于反射型
+* 并不是所有浏览器都支持
+
+## 02-03
+### HTML内容和属性转义
+
+#### HTML内容转义
+
+* 尖括号的替换`<,>`
+
+```HTML
+<div>
+#{content}
+</div>
+```
+
+* 转义< `&lt;` 和 > `&gt`
+
+```JavaScript
+var escapeHtml = function(str) {
+  if(!str) return '';
+  str = str.replace(/</g,'&lt;');//替换成html实体
+  str = str.replace(/>/g,'&gt;');
+  return str;
+}
+```
+
+#### HTML属性转义
+
+* HTML属性
+
+```HTML
+<img class="#{class}" />
+<img class="hello" onload="alert(1)" />
+```
+
+* 将`"`和`'`进行转义
+
+```JavaScript
+var = escapeHtmlProperty = function(str) {
+  if(!str) return '';
+  str = str.replace(/"/g,'&quto');
+  str = str.replace(/'/g,'&39');
+  str = str.replace(/ /g,'&32');
+  return str;
+}
+```
+
+#### 总结
+```JavaScript
+var escapeHtml = function(str) {
+  if(!str) return '';
+  str = str.replace(/</g,'&lt;');//替换成html实体
+  str = str.replace(/>/g,'&gt;');
+  str = str.replace(/"/g,'&quto');
+  str = str.replace(/'/g,'&39');
+  str = str.replace(/ /g,'&32'); //遵循书写规则，可以不做转义
+  return str;
+}
+```
+
+---
+
+## X
+### XSS攻击-关于URL
+* 问: 如果对URL传值的时候做encodeURICompoment,在接收的时候decodeURLComponent,是不是这样也可以放置XSS攻击呢？
+* 答：`不能，因为XSS攻击的重点不在于传输过程中有没有转义，而在于最后输出的时候有没有意义。如果我传输一段脚本,它直接显示出来，这是XSS攻击，但如果我做了某种encode，但是显示的时候又decode，那实际上相当于什么也没做。类似的SQL注入也是同样原理，只要在拼接SQL的时候用的原来的值，不管传输过程中有没有转义，都没有起到防御作用`
