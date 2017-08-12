@@ -130,8 +130,81 @@
 
 #### 跨域通讯📞的几种方式
 * JSONP
+
+```html
+<script src="http://www.abc.com/?data=name&callback=jsonp" charset="utf-8"></script>
+<script>
+jsonp({
+  data:{
+
+  }
+})
+</script>
+```
+```JavaScript
+var util = {};
+util.createScript = function(url,charset){
+  var script = document.createElement('script');
+  script.setAttribute('type','text/javascript');
+  charset && script.setAttribute('charset',charset);
+  script.async = true;
+  return script;
+}
+util.jsonp =function(url,onsuccess,onerror,charset){
+  var callbackName = util.getName('tt_player');
+  window[callback] = function () {
+    if(onsuccess && util.isFunction(onsuccess)){
+      onsuccess(arguments[0]);
+    }
+  };
+  var script = util.createScript(url + '&callback=' + callbackName,charset);
+  script.onload = script.onreadystatechange = function () {
+    if(!script.readyState || /loaded|complete/.test(script.readyState)){
+      script.onload = script.onreadystatechange = null;
+      //移除该script 的DOM 对象
+      if(script.parentNode){
+        script.parentNode.removeChild(script);
+      }
+      //删除函数或变量
+      window[callbackName] = null;
+    }
+  };
+  script.onerror = function(){
+    if(onerror && util.isFunction(onerror)){
+      onerror();
+    }
+  };
+  document.getElementsByTagName('head')[0].appendChild(script);
+}
+```
+
 * Hash
+
+```javascript
+//利用hash，场景是当前页面A通过iframe或iframe嵌入了跨域的页面 B
+//A中伪代码
+var B = document.getElementsByTagName('iframe');
+B.src = B.src + '#' +'data';
+//在B中的伪代码如下
+window.onhashchange = function(){
+  var data = window.location.hash;
+}
+```
+
 * postMessage(HTML5新增)
+
+* A窗口下的
+```JavaScript
+//postMessage
+//窗口A
+window
+```
+
+* B窗口下的
+
+```JavaScript
+```
+
 * WebSocket
 * CORS支持跨域通讯的AJAX
 
