@@ -18,7 +18,7 @@
 * [02-06](https://github.com/TYRMars/WebsafeLearn#02-06) `CSP`
 * [02-07](https://github.com/TYRMars/WebsafeLearn#02-07) `PHP-XSS`
 #### 第三章 前端CSRF
-* [03-01](https://github.com/TYRMars/WebsafeLearn#03-01) `CSRF攻击简介和演示`
+* [03-01](https://github.com/TYRMars/WebsafeLearn#03-01) `CSRF攻击简介`
 * [03-02](https://github.com/TYRMars/WebsafeLearn#03-02) `CSRF攻击原理和危害`
 * [03-03](https://github.com/TYRMars/WebsafeLearn#03-03) `CSRF防御-samesite`
 * [03-04](https://github.com/TYRMars/WebsafeLearn#03-04) `CSRF防御-验证码`
@@ -415,7 +415,7 @@ var = escapeHtmlProperty = function(str) {
 }
 ```
 
-#### 总结
+#### 转义总结
 ```JavaScript
 var escapeHtml = function(str) {
   if(!str) return '';
@@ -427,6 +427,128 @@ var escapeHtml = function(str) {
   return str;
 }
 ```
+
+#### 新的防御方法-CSP 内容安全策略
+* 内容安全策略（CSP）用于检测和减轻用于 Web 站点的特定类型的攻击，例如 XSS 和数据注入等。
+* 该安全策略的实现基于一个称作 Content-Security-Policy 的 HTTP 首部。
+* Content Security Policy
+##### 限制规则
+* child-src connect-src default-src
+* font-src frame-src img-src
+* manifest-src media-src object-src
+* script-src style-src worker-src
+```html
+child-src
+child-src：为 web workers和其他内嵌浏览器内容定义 合法的源，例如用<frame> 和<iframe>加载到页面的内容。
+connect-src
+connect-src：限制能通过脚本接口加载的URL。
+default-src
+default-src：为其他取指令提供备用服务fetch directives.
+font-src
+font-src：限制通过@font-face加载的字体源。
+frame-src
+frame-src： 限制通过类似<frame> 和<iframe> 标签加载的内嵌内容源。
+img-src
+img-src: 限制图片和图标源
+manifest-src
+manifest-src ： 限制 application manifest 文件源。
+media-src
+media-src：限制通过<audio> 或<video> 标签加载的媒体文件源。
+object-src
+object-src：限制通过  <object>, <embed> ，<applet> 标签加载源。
+script-src
+script-src：限制javascript 源。
+style-src
+style-src：限制层叠样式表文件源。
+worker-src
+worker-src：限制Worker, SharedWorker, 或者 ServiceWorker脚本源。
+```
+* 指定哪些可信，哪些不可信
+* `<host-source><scheme-source>'self'`
+* `'unsafe-inline''ubsafe-eval''none'` -XSS攻击重点：检测页面内容(信任规则)
+* `'nonce-<base64-value>' <hash-source>`-一次性凭证 后台hash传递
+* `'strit-dynamic'` 后续脚本的信任
+
+##### 事例
+
+```html
+<!-- 在Content中设置规则 -->
+<meta http-equiv="Content-Security-Policy" content="default-src https:">
+```
+
+* 防止XSS攻击
+
+```html
+<!-- 这样设置页面上的脚本会失效，但是外链引用的脚本会有效 -->
+<meta http-equiv="Content-Security-Policy" content="default-src self">
+<!-- 但是这样还会导致页面图片失效 因为没有设置相应的'img-src'规则 ，所以他只会信赖本域下的图片 -->
+<!-- 为了更精准的操作放置XSS攻击，则采用script-src 这样图片不会受到影响 -->
+<meta http-equiv="Content-Security-Policy" content="script-src self">
+```
+
+* 但是页面上有需要的呢,那就需要设置新规则`nonce`+随即字符串
+```html
+<!-- nonce+随机🔀字符串 -->
+<meta http-equiv="Content-Security-Policy" content="script-src self nonce-1234">
+```
+```html
+<script type="text/javascript" nonce="1234">
+
+</script>
+```
+
+* 通过计算页面hash值也可以保证界面不受XSS攻击
+
+
+## 03-01
+### 前端CSRF攻击简介
+* Cross Site Request Forgy
+* 跨站请求伪造
+* 其他网站对本网站产生的影响
+#### 登录对新闻评论
+* 声明：这个网站是可以匿名评论和登录评论的,网站地址`http://loacalhost`
+* 先在网站进行登录（把userid存储到cookie）
+* 攻击方法
+```html
+<script type="text/javascript">
+  document.write(`<form method="post" name="commentForm" target="csrf" action="http://loacalhost">
+  <input type="hidden" name="postId" value="13">
+  <textarea name="content" >来自csrf</textarea>
+  </form>`);
+  var irame = document.createElement('iframe');
+  iframe.name = 'csrf';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  setTimeout(() => {
+    document.querySelector('[name=commentForm]').submit();//执行在攻击页面该脚本
+  }, 1000);
+</script>
+```
+
+## 03-02
+### CSRF攻击原理和危害
+* 1.用户登录A网站 2.A网站确认身份 3.B网站页面向A网站发起请求（带A网站的身份）
+* B网站通过手段模拟用户，向A网站后台发送数据
+
+## 03-03
+### CSRF防御 - samesite
+* 通过 referer、token 或者 验证码 来检测用户提交。
+* 尽量不要在页面的链接中暴露用户隐私信息。
+* 对于用户修改删除等操作最好都使用post 操作 。
+* 避免全站通用的cookie，严格设置cookie的域。
+
+* 禁止第三方网站带Cookies
+* Cookie新属性same-site属性
+    * SameSite = Strict 任何网站不允许携带
+    * SameSite = Lax 允许链接带上Cookie，但不允许ajax不可以带Cookie，form提交也不允许带上Cookie
+
+* 只有Chrome支持
+
+## 03-06
+### CSRF防御-referer
+* 验证referer
+* 禁止来自第三方网站的请求
 
 ---
 
