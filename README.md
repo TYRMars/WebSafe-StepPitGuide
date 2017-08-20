@@ -125,24 +125,55 @@
 * 事件的触发顺序
 
 ```JavaScript
-
+function ajax(url,fnSucc,fnFaild) {
+    //1.创建ajax对象
+    if(window.XMLHttpRequest){
+        var iAjax = new XMLHttpRequest();
+    }else{
+        var iAjax = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //2.连接服务器
+    //open(方法、文件名、异步传输)
+    iAjax.open('GET',url,true);
+    //3.发送请求
+    iAjax.send();
+    //4.接受返回
+    iAjax.onreadystatechange = function () {
+        //iAjax.readyState 浏览器和服务器进行到哪一步了
+        if(iAjax.readyState === 4){
+            if(iAjax.status === 200 || iAjax.status === 304){
+                fnSucc(iAjax.responseText);
+            }
+            else{
+                if(fnFaild){
+                    fnFaild(iAjax.status);
+                }
+                alert('失败'+iAjax.status);
+            }
+        }
+    }
+}
 ```
 
 #### 跨域通讯📞的几种方式
 * JSONP
+* script 标签异步加载
 
 ```html
 <script src="http://www.abc.com/?data=name&callback=jsonp" charset="utf-8"></script>
 <script>
 jsonp({
   data:{
-
+  	<!-- 全局函数接受回掉信息 -->
   }
 })
 </script>
 ```
+
 ```JavaScript
 var util = {};
+
+/*[function 在页面注入脚本]*/
 util.createScript = function(url,charset){
   var script = document.createElement('script');
   script.setAttribute('type','text/javascript');
@@ -150,9 +181,11 @@ util.createScript = function(url,charset){
   script.async = true;
   return script;
 }
+
+/*[function jsonp]*/
 util.jsonp =function(url,onsuccess,onerror,charset){
   var callbackName = util.getName('tt_player');
-  window[callback] = function () {
+  window[callbackName] = function () {
     if(onsuccess && util.isFunction(onsuccess)){
       onsuccess(arguments[0]);
     }
@@ -179,6 +212,7 @@ util.jsonp =function(url,onsuccess,onerror,charset){
 ```
 
 * Hash
+* 嵌入页面跨域
 
 ```javascript
 //利用hash，场景是当前页面A通过iframe或iframe嵌入了跨域的页面 B
@@ -196,17 +230,61 @@ window.onhashchange = function(){
 * A窗口下的
 ```JavaScript
 //postMessage
-//窗口A
-window
+//窗口A(http://A.com)向跨域窗口(http://B.com)发送信息
+window.postMessage('data','http://B.com');
+
 ```
 
 * B窗口下的
 
 ```JavaScript
+//窗口B中监听;
+window.addEventListener('message',function(event) {
+  console.log(event.origin);// http://A.com
+  console.log(event.source);// A window
+  console.log(event.data);// data!
+},false);
 ```
 
 * WebSocket
+
+[WebSocket-参考资料](http://www.ranyifeng.com/blog/2017/05/websocket.html)
+
+```JavaScript
+//Websocket
+var ws = new WebSocket('wss://echo.websocket.org');
+
+ws.onopen = function(evt) {
+  console.log('Connection open ...');
+  ws.send('Hello WebSockets!');
+};
+
+ws.onmessage = function(evt) {
+  console.log('Received Message:' + evt.data);
+  ws.close();
+}
+
+ws.onclose = function(evt) {
+  console.log('Connection closes.');
+}
+```
+
 * CORS支持跨域通讯的AJAX
+
+[CORS - fetch 跨域](http://www.ruanyifeng.com/blog/2016/04/cors.html)
+
+* 浏览器会拦截http请求，如果发现这个请求是跨域的
+
+```javascript
+// url (必须), options (可选)
+fetch('/some/url',{
+	method: 'get',
+}).then(function(response) {
+  
+}).catch(function(err) {
+  //出错了;等价于then的第二个参数，但这样更好用更直观
+})
+```
 
 ## 02-01
 ### XSS介绍
