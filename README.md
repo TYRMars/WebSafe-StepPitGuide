@@ -280,7 +280,7 @@ ws.onclose = function(evt) {
 fetch('/some/url',{
 	method: 'get',
 }).then(function(response) {
-  
+
 }).catch(function(err) {
   //出错了;等价于then的第二个参数，但这样更好用更直观
 })
@@ -507,14 +507,17 @@ var escapeHtml = function(str) {
 ```
 
 #### 新的防御方法-CSP 内容安全策略
+
 * 内容安全策略（CSP）用于检测和减轻用于 Web 站点的特定类型的攻击，例如 XSS 和数据注入等。
 * 该安全策略的实现基于一个称作 Content-Security-Policy 的 HTTP 首部。
 * Content Security Policy
+
 ##### 限制规则
 * child-src connect-src default-src
 * font-src frame-src img-src
 * manifest-src media-src object-src
 * script-src style-src worker-src
+
 ```html
 child-src
 child-src：为 web workers和其他内嵌浏览器内容定义 合法的源，例如用<frame> 和<iframe>加载到页面的内容。
@@ -541,6 +544,7 @@ style-src：限制层叠样式表文件源。
 worker-src
 worker-src：限制Worker, SharedWorker, 或者 ServiceWorker脚本源。
 ```
+
 * 指定哪些可信，哪些不可信
 * `<host-source><scheme-source>'self'`
 * `'unsafe-inline''ubsafe-eval''none'` -XSS攻击重点：检测页面内容(信任规则)
