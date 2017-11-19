@@ -21,6 +21,6 @@ routes.forEach((route) => {
 	app.use(require(`./routes/${route}`).routes());
 });
 
-app.listen(80, function(){
-	console.log('App is listening on port 80');
+app.listen(9000, function(){
+	console.log('App is listening on port 9000');
 });
