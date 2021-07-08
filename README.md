@@ -3,7 +3,8 @@
 
 ---
 
-* [X](https://github.com/TYRMars/WebsafeLearn#X)`自己对Web安全的探索`
+
+* [tyrmars.github.io](https://tyrmars.github.io/fe/safe/)`自己对Web安全的探索`
 
 # 目录
 
